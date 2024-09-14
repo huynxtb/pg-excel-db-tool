@@ -1,0 +1,104 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Tool Import Data Excel to Database | ProG Coder</h1>
+    <p>Xem thêm nhiều bài viết hay tại <a target="_blank" href="https://progcoder.com">ProG Coder</a>.</p>
+    <p><a target="_blank" href="https://progcoder.com">Hướng dẫn sử dụng Tool</a>.</p>
+
+    <div class="container">
+        <form autocomplete="on">
+            <div class="row">
+                <div class="col-6">
+                    <label for="DatabaseType">Database Type</label>
+                    <select id="DatabaseType" class="form-control">
+                        <option value="MSSQL">MS SQL Server</option>
+                        <option value="MYSQL">MySQL</option>
+                        <option value="POSTGRESQL">PostgreSQL</option>
+                        <option value="ORACLE">Oracle</option>
+                    </select>
+                </div>
+                <div class="col-6">
+                    <label for="TableName">Table Name</label>
+                    <input type="text" name="TableName" class="form-control" id="TableName" placeholder="Table name"/>
+                </div>
+                <div class="col-6">
+                    <label for="ConnectionString">Connection String</label>
+                    <input type="text" class="form-control" name="ConnectionString" id="ConnectionString" placeholder="Connection string"/>
+                </div>
+                <div class="col-6" style="margin-top: 10px">
+                    <label for="ExcelFile">Chose Excel File</label>
+                    <input type="file" class="form-control" id="ExcelFile" />
+                </div>
+                <div class="col-12" style="margin-top: 10px">
+                    <button type="button" class="btn btn-outline-success" id="BtnImportData">Import Data</button>
+                    <br />
+                    <br />
+                    <span id="ErrorMessage" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div id="table-content"></div>
+            </div>
+        </form>
+        <div class="container-fluid">
+            <h3>Hướng dẫn nhanh</h3>
+            <hr/>
+            <p><strong>Connection String</strong></p>
+            <p>Đối với SQL Server:</p>
+            <p>- Window Authen: Server=YOUR_SERVER;Database=YOUR_DATABASE;Trusted_Connection=True;</p>
+            <p>- SQL Authen: Server=YOUR_SERVER;Database=YOUR_DATABASE;User Id=YOUR_USERNAME;Password=YOUR_PASSWORD;Connection Timeout=600;</p>
+            <p>Xem các Connection String khác tại đây: <a target="_blank" href="https://www.connectionstrings.com/">https://www.connectionstrings.com/</a></p>
+            <hr/>
+            <p><strong>Chú ý file Excel</strong></p>
+            <p>- Đối với File Excel dùng để Import các bạn cần chú ý hàng đầu tiên là các Column (cột) tương ứng với Table (bảng) dùng để Import (Không được chứa khoảng trắng)</p>
+            <p>- Ví dụ:</p>
+            <img style="width: 100%; height: 100%" src="img/1.png" alt="1"/>
+            <hr/>
+            <img style="width: 50%; height: 50%" src="img/2.png" alt="1"/>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        importData();
+    });
+
+    function importData() {
+        $('#BtnImportData').on('click', function (event) {
+            event.preventDefault();
+            $('#ErrorMessage').text('');
+            let formData = new FormData();
+            formData.append('ExcelFile', $('#ExcelFile')[0].files[0]);
+            formData.append('DatabaseType', $('#DatabaseType').val());
+            formData.append('TableName', $('#TableName').val());
+            formData.append('ConnectionString', $('#ConnectionString').val());
+            
+            showLoading('Processing...');
+
+            $.ajax({
+                url: '/Import/UploadFile',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    closeSwal();
+                    if(response.success){
+                        showAlertMessage(response.message);
+                    }else{
+                        $('#ErrorMessage').text(response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error)
+                    if (error == "ERR_UPLOAD_FILE_CHANGED") {
+                        location.reload();
+                    }
+                },
+            });
+        });
+    }
+</script>
