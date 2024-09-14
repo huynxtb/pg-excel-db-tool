@@ -1,6 +1,6 @@
 # Hello friend 👋
 
-Welcome to my ProG Coder
+Welcome to my repository!
 
 Visit my website to read more articles at [progcoder.com](https://progcoder.com)
 
